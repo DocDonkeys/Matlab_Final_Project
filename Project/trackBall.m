@@ -43,7 +43,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before trackBall is made visible.
 function trackBall_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -51,7 +50,6 @@ function trackBall_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to trackBall (see VARARGIN)
-
 
 set(hObject,'WindowButtonDownFcn',{@my_MouseClickFcn,handles.axes1});
 set(hObject,'WindowButtonUpFcn',{@my_MouseReleaseFcn,handles.axes1});
@@ -75,7 +73,6 @@ guidata(hObject, handles);
 
 % UIWAIT makes trackBall wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-
 
 % --- Outputs from this function are returned to the command line.
 function varargout = trackBall_OutputFcn(hObject, eventdata, handles) 
@@ -110,7 +107,7 @@ end
 guidata(hObject,handles)
 
 function my_MouseReleaseFcn(obj,event,hObject)
-handles=guidata(hObject);
+handles = guidata(hObject);
 set(handles.figure1,'WindowButtonMotionFcn','');
 guidata(hObject,handles);
 
@@ -147,10 +144,10 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
         vec2 = (vec2) / norm(vec2); 
         end
     end
-    %CARLES_ALERT
+    
     axis = cross(vec2, vec1); 
     angle = -acosd(dot(vec2, vec1)); 
-    R = axisangle2matrix(axis, angle);
+    R = Rodrigues(axis, angle);
     handles.Cube = RedrawCube(R, handles);
     
 end
@@ -169,11 +166,9 @@ M0 = [ -1 -1 1;   %Node 1
 
 M = (R*M0')';
 
-
 x = M(:,1);
 y = M(:,2);
 z = M(:,3);
-
 
 con = [1 2 3 4;
     5 6 7 8;
@@ -199,7 +194,6 @@ for q = 1:length(c)
     h(q).FaceColor = c(q,:);
 end
 
-
 function cube = RedrawCube(R, hin)
 
 cube = hin.Cube;
@@ -221,11 +215,9 @@ M0 = [ -1 -1 1;
 
 M = (R*M0')';
 
-
 x = M(:,1);
 y = M(:,2);
 z = M(:,3);
-
 
 con = [1 2 3 4;
        5 6 7 8;
@@ -243,60 +235,54 @@ for q = 1:6
     cube(q).FaceColor = c(q,:);
 end
 
-SetGuideRot(hin, R);
-SetEulerRot(hin, R);
-SetAnglesRot(hin, R);
-SetVecRot(hin, R);
-SetQuatRot(hin, R);
+SetRotMat(hin, R);
+SetPrincipalEuler(hin, R);
+SetEulerAngles(hin, R);
+SetRotVec(hin, R);
+SetQuat(hin, R);
 
-
-function Push_Button_Quaternion(hObject, eventdata, handles)
+function Quat_Button(hObject, eventdata, handles)
 
 q0 = str2double(get(handles.q_0_edit, 'String'));
 q1 = str2double(get(handles.q_1_edit, 'String'));
 q2 = str2double(get(handles.q_2_edit, 'String'));
 q3 = str2double(get(handles.q_3_edit, 'String'));
 q = [q0; q1; q2; q3];
-R = quaternion_R(q);
+R = QuatToRotMat(q);
 handles.Cube = RedrawCube(R, handles);
-
 
 function Reset_Button(hObject, eventdata, handles)
 
 R = eye(3);
 handles.Cube = RedrawCube(R, handles);
-SetGuideRot(handles, R);
+SetRotMat(handles, R);
 
-
-function Push_Button_Euler(hObject, eventdata, handles)
+function Principal_Euler_Button(hObject, eventdata, handles)
 
 u_x = str2double(get(handles.u_x_edit, 'String'));
 u_y = str2double(get(handles.u_y_edit, 'String'));
 u_z = str2double(get(handles.u_z_edit, 'String'));
-u_axis = [u_x; u_y; u_z];
-u_angle = str2double(get(handles.u_angle_edit, 'String'));
-R = axisangle2matrix(u_axis, u_angle);
+axis = [u_x; u_y; u_z];
+angle = str2double(get(handles.u_angle_edit, 'String'));
+R = Rodrigues(axis, angle);
 handles.Cube = RedrawCube(R, handles);
 
+function Euler_Angles_Button(hObject, eventdata, handles)
 
-function Push_Button_Euler_Angles(hObject, eventdata, handles)
-
-e_phi = str2double(get(handles.phi_edit, 'String'));
-e_theta = str2double(get(handles.theta_edit, 'String'));
-e_psi = str2double(get(handles.psi_edit, 'String'));
-R = Angles_R(e_phi, e_theta, e_psi);
+yaw = str2double(get(handles.phi_edit, 'String'));
+pitch = str2double(get(handles.theta_edit, 'String'));
+roll = str2double(get(handles.psi_edit, 'String'));
+R = EulerAnglesToRotMat(roll, pitch, yaw);
 handles.Cube = RedrawCube(R, handles);
 
+function RotVec_Button(hObject, eventdata, handles)
 
-function Push_Button_Rotation_Vector(hObject, eventdata, handles)
-
-x_rot_v = str2double(get(handles.x_rot_edit, 'String'));
-y_rot_v = str2double(get(handles.y_rot_edit, 'String'));
-z_rot_v = str2double(get(handles.z_rot_edit, 'String'));
-rot_vector = [x_rot_v; y_rot_v; z_rot_v];
-R = rotvecR(rot_vector);
+rotVec_x = str2double(get(handles.x_rot_edit, 'String'));
+rotVec_y = str2double(get(handles.y_rot_edit, 'String'));
+rotVec_z = str2double(get(handles.z_rot_edit, 'String'));
+rotVec = [rotVec_x; rotVec_y; rotVec_z];
+R = RotVecToRotMat(rotVec);
 handles.Cube = RedrawCube(R, handles);
-
 
 function phi_edit(hObject, eventdata, handles)
 set(hObject,'BackgroundColor','white');
@@ -340,45 +326,43 @@ set(hObject,'BackgroundColor','white');
 function q_3_edit(hObject, eventdata, handles)
 set(hObject,'BackgroundColor','white');
 
+function SetRotMat(update, R)
+    set(update.rm_11, 'String', R(1, 1));
+    set(update.rm_12, 'String', R(1, 2));
+    set(update.rm_13, 'String', R(1, 3));
+    set(update.rm_21, 'String', R(2, 1));
+    set(update.rm_22, 'String', R(2, 2));
+    set(update.rm_23, 'String', R(2, 3));
+    set(update.rm_31, 'String', R(3, 1));
+    set(update.rm_32, 'String', R(3, 2));
+    set(update.rm_33, 'String', R(3, 3));
 
-function SetGuideRot(update, r)
-    set(update.rm_11, 'String', r(1, 1));
-    set(update.rm_12, 'String', r(1, 2));
-    set(update.rm_13, 'String', r(1, 3));
-    set(update.rm_21, 'String', r(2, 1));
-    set(update.rm_22, 'String', r(2, 2));
-    set(update.rm_23, 'String', r(2, 3));
-    set(update.rm_31, 'String', r(3, 1));
-    set(update.rm_32, 'String', r(3, 2));
-    set(update.rm_33, 'String', r(3, 3));
-
-function SetEulerRot(update, r)
-    [e_axis, e_angle] = Raxisangle(r);
-    set(update.u_angle_edit, 'String', e_angle);
-    set(update.u_x_edit, 'String', e_axis(1));
-    set(update.u_y_edit, 'String', e_axis(2));
-    set(update.u_z_edit, 'String', e_axis(3));
+function SetPrincipalEuler(update, R)
+    [axis, angle] = RotMatToEuler(R);
+    set(update.u_angle_edit, 'String', angle);
+    set(update.u_x_edit, 'String', axis(1));
+    set(update.u_y_edit, 'String', axis(2));
+    set(update.u_z_edit, 'String', axis(3));
     
-function SetAnglesRot(update, r)
-    [a1, a2, a3] = EulerRotationAngles(r);
-    set(update.phi_edit, 'String', a1);
-    set(update.theta_edit, 'String', a2);
-    set(update.psi_edit, 'String', a3);
+function SetEulerAngles(update, R)
+    [roll, pitch, yaw] = GetRotAngles(R);
+    set(update.phi_edit, 'String', yaw);
+    set(update.theta_edit, 'String', pitch);
+    set(update.psi_edit, 'String', roll);
     
-function SetVecRot(update, r)
-    vec = Rvecrot(r);
-    set(update.x_rot_edit, 'String', vec(1));
-    set(update.y_rot_edit, 'String', vec(2));
-    set(update.z_rot_edit, 'String', vec(3));
+function SetRotVec(update, R)
+    rotVec = RotMatToRotVec(R);
+    set(update.x_rot_edit, 'String', rotVec(1));
+    set(update.y_rot_edit, 'String', rotVec(2));
+    set(update.z_rot_edit, 'String', rotVec(3));
 
-function SetQuatRot(update, r)
-    quat = RotationQuat(r);
-    set(update.q_0_edit, 'String', quat(1));
-    set(update.q_1_edit, 'String', quat(2));
-    set(update.q_2_edit, 'String', quat(3));
-    set(update.q_3_edit, 'String', quat(4));
-
-    
+function SetQuat(update, R)
+    q = RotMatToQuat(R);
+    set(update.q_0_edit, 'String', q(1));
+    set(update.q_1_edit, 'String', q(2));
+    set(update.q_2_edit, 'String', q(3));
+    set(update.q_3_edit, 'String', q(4));
+ 
 function Set_global_xclick(variable)
     global xclick;
     xclick = variable;
