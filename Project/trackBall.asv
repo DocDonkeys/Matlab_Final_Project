@@ -147,10 +147,10 @@ if xmouse > xlim(1) && xmouse < xlim(2) && ymouse > ylim(1) && ymouse < ylim(2)
         vec2 = (vec2) / norm(vec2); 
         end
     end
-    %CARLES_ALERT
+    
     axis = cross(vec2, vec1); 
     angle = -acosd(dot(vec2, vec1)); 
-    R = axisangle2matrix(axis, angle);
+    R = Rodrigues(axis, angle);
     handles.Cube = RedrawCube(R, handles);
     
 end
@@ -275,7 +275,7 @@ u_y = str2double(get(handles.u_y_edit, 'String'));
 u_z = str2double(get(handles.u_z_edit, 'String'));
 u_axis = [u_x; u_y; u_z];
 u_angle = str2double(get(handles.u_angle_edit, 'String'));
-R = axisangle2matrix(u_axis, u_angle);
+R = GetRotMat(u_axis, u_angle);
 handles.Cube = RedrawCube(R, handles);
 
 
