@@ -22,7 +22,7 @@ function varargout = trackBall(varargin)
 
 % Edit the above text to modify the response to help trackBall
 
-% Last Modified by GUIDE v2.5 24-Nov-2016 11:52:15
+% Last Modified by GUIDE v2.5 09-Jan-2019 20:03:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -378,3 +378,10 @@ function Set_global_yclick(variable)
 function y = Get_global_yclick
     global yclick;
     y = yclick;
+
+
+% --- Executes on button press in Quat_Button.
+function Quat_Button_Callback(hObject, eventdata, handles)
+% hObject    handle to Quat_Button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
